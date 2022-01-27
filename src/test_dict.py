@@ -26,7 +26,7 @@ for i in range(0, len(hyper_list)):
 
         json_dump = json.dumps(hyper_dict)
         # open file for writing, "w"
-        f = open("hyperparameter-configurations/hypers.{0}".format(i),"w")
+        f = open("../hyperparameter-configurations/hypers.{0}".format(i),"w")
 
         # write json object to file
         f.write(json_dump)

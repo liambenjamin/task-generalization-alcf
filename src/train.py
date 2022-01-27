@@ -42,14 +42,11 @@ def train_model(architecture, learning_rate, hid_dim, epochs, dataset, permute, 
     # training callback(s)
     time_callback = TimeCallback()
 
-    print('\nTreatment:\n', treatment, '\n')
-
     # build model
     model = build_adjoint_model(architecture, hid_dim, ft_dim, T, output_dim, learning_rate, embed=embed)
 
-    print('starting training...\n')
     # fit model
-    model_out = model.fit(x_train, y_train, validation_data=(x_test,y_test), batch_size=32, epochs=epochs, verbose=1, callbacks=[time_callback])
+    model_out = model.fit(x_train, y_train, validation_data=(x_test,y_test), batch_size=32, epochs=epochs, verbose=0, callbacks=[time_callback])
 
     # store model/training information in history
     model_out.history['time'] = time_callback.times
@@ -72,9 +69,8 @@ def main():
     pad = hypers['pad']
     orientation = hypers['orientation']
 
+    train_model(arch, learning_rate, hid_dim, epochs, dataset, permute, pad, orientation)
 
-    output = train_model(arch, learning_rate, hid_dim, epochs, dataset, permute, pad, orientation)
-    print('\ntraining output:\n', output)
 
 if __name__== "__main__":
     main()
