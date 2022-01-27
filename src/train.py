@@ -39,6 +39,8 @@ def train_model(architecture, learning_rate, hid_dim, epochs, dataset, permute, 
                     'identifier': identifier
                     }
 
+    for k in treatment.keys():
+        print(k,':\t', treatment[k])
     # training callback(s)
     time_callback = TimeCallback()
 
@@ -46,7 +48,7 @@ def train_model(architecture, learning_rate, hid_dim, epochs, dataset, permute, 
     model = build_adjoint_model(architecture, hid_dim, ft_dim, T, output_dim, learning_rate, embed=embed)
 
     # fit model
-    model_out = model.fit(x_train, y_train, validation_data=(x_test,y_test), batch_size=32, epochs=epochs, verbose=0, callbacks=[time_callback])
+    model_out = model.fit(x_train, y_train, validation_data=(x_test,y_test), batch_size=32, epochs=epochs, verbose=1, callbacks=[time_callback])
 
     # store model/training information in history
     model_out.history['time'] = time_callback.times

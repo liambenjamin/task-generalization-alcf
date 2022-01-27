@@ -3,9 +3,22 @@ Codes supporting RNN project at ALCF.
 
 ### File Contents
 
-The model training script is located at ``src/train.py``. This script takes training arguments located in the ``hyperparameter-configurations`` directory. Each argument configuration is named ``hypers.<id>``, and contains a dictionary of arguments that is parsed and fed to the training script with ``sys.argv``.
+The model training script is located at ``src/train.py``. This script takes training arguments located in the ``hyperparameter-configurations`` directory. Each argument configuration is named ``hypers.<id>``, and contains a dictionary of arguments that is parsed and fed to the training script with ``sys.argv``. For example, ``hypers.0`` contains:
 
-As an example, training a single model can be performed from the terminal by executing:
+```
+{
+	"architecture": "rnn", 
+	"learning_rate": 0.0001, 
+	"dimension": 128, 
+	"epochs": 25, 
+	"dataset": "mnist", 
+	"permute": true, 
+	"pad": 0, 
+	"orientation": null
+}
+```
+
+Executing training with a specific hyperparameter configuration can be performed from the terminal with:
 
 	$ python train.py hyperparameter-configurations/hypers.1  
 

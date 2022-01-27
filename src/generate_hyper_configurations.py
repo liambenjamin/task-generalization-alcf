@@ -2,7 +2,7 @@ import json
 import itertools
 
 
-arch = ['rnn', 'lstm', 'antisymmetric', 'exponential']
+arch = ['rnn', 'lstm', 'antisymmetric', 'exponential', 'unitary']
 learning_rate = [1e-4, 1e-3]
 dataset = ['mnist', 'fashion_mnist']
 dim = [128, 256]
