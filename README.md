@@ -18,4 +18,4 @@ The datasets used for training need to be downloaded once prior to running train
 	> fashion_mnist.load_data()
 	> exit()
 
-This will download the datasets to ``~/.keras/datasets`` and will then be available for the training script to access. Executing the training script will load and augment the downloaded datasets according to the arguments stored in ``hypers.<id>``. 
+This will download the datasets to ``~/.keras/datasets`` and make them available for the training script to access at runtime. Executing the training script will load and augment the downloaded datasets according to the arguments stored in ``hypers.<id>``. 
