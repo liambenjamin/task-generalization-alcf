@@ -1,7 +1,11 @@
 # Interrogating Task Generalization
-Codes supporting the experiments presented in *Interrogating Task Generalization of Model Behaviors on Benchmark Tasks*.
+Supporting codes for the paper *Interrogating Task Generalization of Model Behaviors on Benchmark Tasks*.
 
-### File Contents
+## Repository Organization
+Code is organized in two structures corresponding to the top level directories: *quick-deployment* and *theta-deployment*. Codes in *quick-deployment* allow for quickly configuring an experimental training attempt and initializing training. The codes in *theta-deployment* correspond to the routine used to deploy batches of training attempts across Argonne National Lab's supercomputer, Theta. Additional information on Theta can be found [here](https://www.alcf.anl.gov/systems/theta). As of January 1, 2024, Theta has been retired and is no longer in use.
+
+
+### Quick Deployment File Contents
 
 The model training script is located at ``src/train.py``. This script takes training arguments located in the ``hyperparameter-configurations`` directory. Each argument configuration is named ``hypers.<id>``, and contains a dictionary of arguments that is parsed and fed to the training script with ``sys.argv``. For example, ``hypers.0`` contains:
 
@@ -32,3 +36,8 @@ The datasets used for training need to be downloaded once prior to running train
 	> exit()
 
 This will download the datasets to ``~/.keras/datasets`` and make them available for the training script to access at runtime. Executing the training script will load and augment the downloaded datasets according to the arguments stored in ``hypers.<id>``. 
+
+
+### Theta Deployment File Contents
+
+The experiment deployment across Theta utilzed the python library [libEnsemble](https://libensemble.readthedocs.io/en/main/). Only path names specific to the filesystem at Argonne Leadership Computing Facility (ALCF) have been removed.
