@@ -1,1 +1,0 @@
-{"architecture": "exponential", "learning_rate": 0.0001, "dimension": 256, "epochs": 25, "dataset": "mnist", "permute": true, "pad": 0, "orientation": null}
