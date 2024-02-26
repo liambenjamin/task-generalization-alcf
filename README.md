@@ -7,24 +7,15 @@ Code is organized in two structures corresponding to the top level directories: 
 
 ### Quick Deployment File Contents
 
-The model training script is located at ``src/train.py``. This script takes training arguments located in the ``hyperparameter-configurations`` directory. Each argument configuration is named ``hypers.<id>``, and contains a dictionary of arguments that is parsed and fed to the training script with ``sys.argv``. For example, ``hypers.0`` contains:
+We provide a jupyter notebook `sample_train_task.ipynb` that walks through loading a recurrent architecture and particular experimental task. The notebook relies on the accompanying python files:
 
-```
-{
-	"architecture": "rnn", 
-	"learning_rate": 0.0001, 
-	"dimension": 128, 
-	"epochs": 25, 
-	"dataset": "mnist", 
-	"permute": true, 
-	"pad": 0, 
-	"orientation": null
-}
-```
+	1. `architectures.py` : implementations of various recurrent architectures
+	
+	2. `network.py` : code for generating recurrent neural network from keras model API
+	
+	3. `load_data.py` : code for loading task data (relies on `tensorflow.keras.datasets`)
+	
 
-Executing training with a specific hyperparameter configuration can be performed from the terminal with:
-
-	$ python train.py hyperparameter-configurations/hypers.1  
 
 ### Accessing Data
 
