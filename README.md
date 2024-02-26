@@ -1,5 +1,5 @@
-# alcf-rnn-robustness
-Codes supporting RNN project at ALCF.
+# Interrogating Task Generalization
+Codes supporting the experiments presented in *Interrogating Task Generalization of Model Behaviors on Benchmark Tasks*.
 
 ### File Contents
 
