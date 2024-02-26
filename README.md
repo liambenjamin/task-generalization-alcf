@@ -40,4 +40,4 @@ This will download the datasets to ``~/.keras/datasets`` and make them available
 
 ### Theta Deployment File Contents
 
-The experiment deployment across Theta utilzed the python library [libEnsemble](https://libensemble.readthedocs.io/en/main/). Only path names specific to the filesystem at Argonne Leadership Computing Facility (ALCF) have been removed.
+The experiment deployment across Theta utilzed the python library [libEnsemble](https://libensemble.readthedocs.io/en/main/). Path names specific to the filesystem at Argonne Leadership Computing Facility (ALCF) have been removed from the original codes.
