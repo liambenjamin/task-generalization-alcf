@@ -1,0 +1,240 @@
+---
+title: "Task Generatlization Analysis"
+output: 
+  html_document:
+    number_sections: True
+---
+
+
+```{r message=FALSE, warning=FALSE, 'load data and packages'}
+# Load Packages and Data
+require(ggplot2) 
+require(onewaytests) 
+require(latex2exp) 
+require(viridis)
+require(dplyr)
+require(rlist)
+# Load helper functions
+source('helpers.R')
+```
+
+
+# Load Data Files
+```{r 'load data'}
+# training instances that completed all training epochs
+terminal.data = read.csv('csv_files/task_generalization_terminal_data.csv', header=TRUE)
+
+# training instances from maximizing hyperparameter configuration
+max.data = read.csv('csv_files/task_generalization_best_hp.csv', header=TRUE)
+```
+
+
+
+# First-order Behaviors
+
+## Table 5: Linear model summaries.
+```{r}
+# set reference level to basic RNN
+max.data$architecture = factor(max.data$architecture)
+max.data$architecture = relevel(max.data$architecture, ref='rnn')
+
+# Fits linear models and generates summary table (Table 5 in manuscript)
+model.table = fit_model(max.data, return_table = T)
+model.table
+```
+
+## Table 6: Hypothesis and Proportion Table of Hypothesis Test on $\beta_{\mathcal{A}}$. 
+```{r}
+# Returns list of linear models fit for each task
+out.model.list = fit_model(max.data, return_table = F)
+
+# Performs pairwise comparison tests with Bonferroni adjustment for each archtiecture effect
+out.p.values = hypothesis_test(out.model.list)
+
+# Generates table of pairwise hypothesis tests results for each architecture effect
+out.p.values$sig.indicator = ifelse(out.p.values$p.values < 0.05, 1, 0)
+out.p.values.table = table(out.p.values$architecture, out.p.values$sig.indicator)
+test.prop.table = prop.table(out.p.values.table, margin = 1)
+
+test.prop.table
+```
+
+## Figure 1 in Paper: Architecture Coefficient Figure
+
+```{r 'generate architecture coefficient figure'}
+
+coef.df = generate_task_coef_table(max.data)
+
+#reorganize/relabel factor level names for figure labels
+coef.df = na.omit(coef.df) # rows (196-210 are NA)
+coef.df$permute = ifelse(coef.df$permute == 'False', 'Sequential Tasks', 'Permuted Tasks')
+coef.df$architecture = factor(coef.df$architecture)
+levels(coef.df$architecture) = c("Antisymmetric RNN", "Exponential RNN", 
+                                 "GRU", "Lipschitz RNN", "LSTM", "Basic RNN", 
+                                 "UnICORNN" 
+                                 )
+coef.df = subset(coef.df, architecture %in% c('Exponential RNN', 'Lipschitz RNN'))#, 'LSTM'))
+coef.df$dataset = factor(coef.df$dataset)
+levels(coef.df$dataset) = c("CIFAR10", "Fashion MNIST", "IMDB", "MNIST", "Reuters")
+coef.df$task_variation = paste(coef.df$orientation, coef.df$permute)
+coef.df$orientation = factor(coef.df$orientation)
+levels(coef.df$orientation) = c('None', 'Post', 'Uniform')
+coef.df$permute = gsub(" Tasks", "", coef.df$permute)
+seq.index = which(coef.df$permute == 'Sequential')
+perm.index = which(coef.df$permute == 'Permuted')
+coef.df$permute[seq.index] = rep('Seq.', length(seq.index))
+coef.df$permute[perm.index] = rep('Perm.', length(perm.index))
+
+coef.df$task_name = paste0(coef.df$dataset, ' x ' , coef.df$permute, ' x ', coef.df$orientation)
+coef.df$task_variation = paste0(coef.df$permute, ' x ', coef.df$orientation)
+
+single.arch.coef.df = subset(coef.df, architecture == 'Exponential RNN')
+# plot figure (Fig. 1 in Manuscript)
+ggplot(single.arch.coef.df, aes(x=task_variation, y=beta.estimate, fill = architecture, colour = architecture)) +
+  geom_bar(stat="identity", color="black",position=position_dodge()) +
+  geom_errorbar(aes(ymin=beta.estimate-beta.se, ymax=beta.estimate+beta.se), 
+                width=.2,position=position_dodge(.9)) +
+  scale_colour_viridis(discrete=TRUE, option='B') +
+  facet_grid(architecture~dataset, drop=TRUE) +
+  ylab(TeX("$\\hat{\\beta}_{A}$")) +  
+  xlab('Task') +
+  theme(legend.title = element_blank(), legend.position = 'none', 
+        plot.title = element_text(size=10)) + 
+  theme(strip.text = element_text(size = 8))+
+  ggtitle(TeX("Task Generalization of $\\hat{\\beta}_{A}$")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7)) 
+
+
+
+```
+
+
+\newpage
+
+# Analysis of Second-order Behaviors
+
+## Load Data
+```{r 'load completed (non errored) training attempts'}
+# training instances that completed all training epochs
+terminal.data = read.csv('csv_files/task_generalization_terminal_data.csv', header=TRUE)
+# set reference level for architecture variable to basic RNN (coded as `rnn`)
+terminal.data$architecture = factor(terminal.data$architecture)
+terminal.data = within(terminal.data, architecture <- relevel(architecture, ref = 'rnn'))
+```
+
+
+## Table 9: Linear Model Summary (Table 9)
+```{r}
+# Fits second-order linear models and generates summary table
+# Table 9 in manuscript
+second.order.model.summary.table = fit_hyper_model(terminal.data, return_table = TRUE)
+second.order.model.summary.table
+```
+
+## Hypothesis Tests on coefficient effects
+```{r}
+# code for generating pairwise hypothesis tests and summary of results
+out.model.list = fit_hyper_model(terminal.data, return_table = F)
+out.p.values = hypothesis_hyper_test(out.model.list)
+out.p.values$log.p.values = -log(out.p.values$p.values, base=10)
+out.p.values$sig.indicator = ifelse(out.p.values$p.values < 0.05, 1, 0)
+
+out.p.values.table = table(out.p.values$variable, out.p.values$sig.indicator)
+df.prop = data.frame(prop.table(out.p.values.table, margin = 1))
+colnames(df.prop) = c('variable', 'decision', 'proportion')
+df.prop$decision = ifelse(df.prop$decision == 0, 
+                          'fail to reject null hypothesis', 
+                          'reject null hypothesis'
+                          )
+
+```
+
+
+## Figure 2: Task generalization of linear model predictors (summary of tests).
+```{r}
+ggplot(data=df.prop, aes(x=variable, y=proportion, fill=decision)) +
+  geom_bar(stat="identity") +
+  ylab('proportion of pairwise\ntests of equivalence') +
+  xlab(NULL) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
+        legend.title = element_blank(), legend.position = 'bottom') 
+```
+
+
+
+## Brown-Forsythe Tests for variance of task learning model behavior
+
+```{r}
+
+none.max = subset(max.data, orientation=='None')
+none.max$task = factor(as.character(none.max$task))
+levels(none.max$task) = c('CIFAR10 seq', 'CIFAR10 perm', 'Fashion MNIST seq', 
+                          'Fashion MNIST perm', 'IMDB seq', 'IMDB perm', 'MNIST seq', 
+                          'MNIST perm', 'Reuters seq', 'Reuters perm'
+                          )
+# antisymmetric
+anti.data = subset(none.max, architecture=='antisymmetric')
+anti.data$architecture = factor(as.character(anti.data$architecture))
+anti.data$task = factor(as.character(anti.data$task))
+# BF Test
+bf.test(response ~ task, data = anti.data)
+
+# exponential
+exp.data = subset(none.max, architecture=='exponential')
+exp.data$architecture = factor(as.character(exp.data$architecture))
+exp.data$task = factor(as.character(exp.data$task))
+# BF Test
+bf.test(response ~ task, data = exp.data)
+
+# lstm
+lstm.data = subset(none.max, architecture=='lstm')
+lstm.data$architecture = factor(as.character(lstm.data$architecture))
+lstm.data$task = factor(as.character(lstm.data$task))
+# BF Test
+bf.test(response ~ task, data = lstm.data)
+
+# lipshitz
+lip.data = subset(none.max, architecture=='lipschitz')
+lip.data$architecture = factor(as.character(lip.data$architecture))
+lip.data$task = factor(as.character(lip.data$task))
+# BF Test
+bf.test(response ~ task, data = lip.data)
+
+# basic rnn
+rnn.data = subset(none.max, architecture=='rnn')
+rnn.data$architecture = factor(as.character(rnn.data$architecture))
+rnn.data$task = factor(as.character(rnn.data$task))
+# BF Test
+bf.test(response ~ task, data = rnn.data)
+
+# unicornn
+uni.data = subset(none.max, architecture=='unicornn')
+uni.data$architecture = factor(as.character(uni.data$architecture))
+uni.data$task = factor(as.character(uni.data$task))
+# BF Test
+bf.test(response ~ task, data = uni.data)
+
+
+# gru
+gru.data = subset(none.max, architecture=='gru')
+gru.data$architecture = factor(as.character(gru.data$architecture))
+gru.data$task = factor(as.character(gru.data$task))
+# BF Test
+bf.test(response ~ task, data = gru.data)
+
+```
+
+
+
+## Numerical Error Rate
+
+  - Computes the proportion of training instances that encountered numerical error during training for each architecture.
+
+```{r}
+# load error data
+error.data = read.csv('csv_files/numerical_error_data.csv', header=T)
+
+# proportion table
+prop.table(table(error.data$architecture, error.data$finished.training),margin=1)
+```
+

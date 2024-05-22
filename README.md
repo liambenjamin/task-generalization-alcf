@@ -2,7 +2,9 @@
 Supporting codes for the paper *Interrogating Task Generalization of Model Behaviors on Benchmark Tasks*.
 
 ## Repository Organization
-Code is organized in two structures corresponding to the top level directories: *quick-deployment* and *theta-deployment*. Codes in *quick-deployment* allow for quickly configuring an experimental training attempt and initializing training. The codes in *theta-deployment* correspond to the routine used to deploy batches of training attempts across Argonne National Lab's supercomputer, Theta. Additional information on Theta can be found [here](https://www.alcf.anl.gov/systems/theta). As of January 1, 2024, Theta has been retired and is no longer in use.
+Execution code is organized in two structures corresponding to the top level directories: *quick-deployment* and *theta-deployment*. Codes in *quick-deployment* allow for quickly configuring an experimental training attempt and initializing training. The codes in *theta-deployment* correspond to the routine used to deploy batches of training attempts across Argonne National Lab's supercomputer, Theta. Additional information on Theta can be found [here](https://www.alcf.anl.gov/systems/theta). As of January 1, 2024, Theta has been retired and is no longer in use.
+
+Analysis code is found in the *statistical-analysis* directory and relies on the R language and Rmd file types. Cleaned data used for the analysis is stored in the subdirectory *statistical-analysis/csv_files* and the R code for generating each figure and table is provided in the Rmarkdown file *statistical-analysis/statistical_analysis.Rmd*.
 
 
 ### Quick Deployment File Contents
